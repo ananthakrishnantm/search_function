@@ -1,0 +1,16 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Environment
+.env
+
+# OS
+.DS_Store
+
+# Vite
+dist/
+
+# SQLite (optional)
+# If you want to COMMIT the DB, comment this out
+# backend/db/*.db
