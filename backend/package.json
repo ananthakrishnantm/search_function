@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "buildClient": "cd ../frontend &&  npm install && npm run build"
+    "buildClient": "cd ../frontend && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +13,7 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.2.1",
+    "express": "^4.21.2",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {

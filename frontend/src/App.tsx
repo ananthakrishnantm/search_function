@@ -28,7 +28,7 @@ const ListPage = () => {
     setIsLoading(true);
 
     axios
-      .get("http://localhost:3001/list")
+      .get("http://localhost:3001/api/games/list")
       .then((res) => {
         const mapped = res.data.map((item: any) => ({
           id: item.id,
