@@ -12,9 +12,7 @@ router.get("/list", (req, res) => {
 
     if (!search) return res.json(rows);
 
-    const filtered = rows.filter(
-      (g) => fuzzySearch(g.title, search) || fuzzySearch(g.publisher, search)
-    );
+    const filtered = rows.filter((g) => fuzzySearch(g.title, search));
 
     res.json(filtered);
   });

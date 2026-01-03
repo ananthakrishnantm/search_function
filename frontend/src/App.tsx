@@ -23,12 +23,15 @@ const ListPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
+  const path = `api/games/list`;
 
+  const mainUrl = apiBaseUrl + path;
   useEffect(() => {
     setIsLoading(true);
 
     axios
-      .get("http://localhost:3001/api/games/list")
+      .get(mainUrl)
       .then((res) => {
         const mapped = res.data.map((item: any) => ({
           id: item.id,
