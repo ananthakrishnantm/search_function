@@ -19,7 +19,6 @@ type Item = {
 
 const ListPage = () => {
   const [data, setData] = useState<Item[]>([]);
-  const [filteredData, setFilteredData] = useState<Item[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -28,54 +27,54 @@ const ListPage = () => {
 
   const mainUrl = apiBaseUrl + path;
   useEffect(() => {
-    setIsLoading(true);
+    // Debounce search to avoid too many API calls
+    const debounceTimer = setTimeout(() => {
+      setIsLoading(true);
+      setError(null);
 
-    axios
-      .get(mainUrl, { withCredentials: true })
-      .then((res) => {
-        const mapped = res.data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          publisher: "EA",
-          platform: "PC",
-          region: item.region,
-          originalPrice: item.original_price,
-          discount: item.discount,
-          currentPrice: item.current_price,
-          cashback: item.cashback,
-          favorites: item.favorites,
-          image: item.image_url,
-        }));
+      // Build URL with search parameter if search query exists and is >= 2 chars
+      const url =
+        searchQuery.length >= 2
+          ? `${mainUrl}?search=${encodeURIComponent(searchQuery)}`
+          : mainUrl;
 
-        setData(mapped);
-        setFilteredData(mapped);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to fetch data");
-        setIsLoading(false);
-      });
-  }, []);
+      axios
+        .get(url, { withCredentials: true })
+        .then((res) => {
+          const mapped = res.data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            publisher: "EA",
+            platform: "PC",
+            region: item.region,
+            originalPrice: item.original_price,
+            discount: item.discount,
+            currentPrice: item.current_price,
+            cashback: item.cashback,
+            favorites: item.favorites,
+            image: item.image_url,
+          }));
+
+          setData(mapped);
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setError("Failed to fetch data");
+          setIsLoading(false);
+        });
+    }, 300); // Wait 300ms after user stops typing
+
+    // Cleanup function to cancel the timeout if searchQuery changes
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, mainUrl]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-
-    if (value.length === 0) {
-      setFilteredData(data);
-    } else if (value.length >= 2) {
-      const filtered = data.filter(
-        (item) =>
-          item.title.toLowerCase().includes(value.toLowerCase()) ||
-          item.publisher.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredData(filtered);
-    }
   };
 
   const clearSearch = () => {
     setSearchQuery("");
-    setFilteredData(data);
   };
 
   return (
@@ -152,7 +151,7 @@ const ListPage = () => {
         <div className="mb-6">
           <h2 className="text-white text-xl font-semibold mb-2">
             Results found:{" "}
-            <span className="text-purple-300">{filteredData.length}</span>
+            <span className="text-purple-300">{data.length}</span>
           </h2>
         </div>
 
@@ -161,7 +160,7 @@ const ListPage = () => {
             <div className="inline-block w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-gray-300 mt-4">Loading games...</p>
           </div>
-        ) : filteredData.length === 0 ? (
+        ) : data.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-gray-300 text-xl mb-4">
               No games found matching "{searchQuery}"
@@ -175,7 +174,7 @@ const ListPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {filteredData.map((item) => (
+            {data.map((item) => (
               <Card key={item.id} {...item} />
             ))}
           </div>
